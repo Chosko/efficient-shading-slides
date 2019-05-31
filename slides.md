@@ -1,258 +1,79 @@
-# Shader Intro
+# Efficient Shading
 
 by [Chosko](https://chosko.com)
 
-<span class="font-size-40">You can now [Download the Unity Demo](shader-intro-demo.unitypackage) presented during the lesson</span>
+<!-- <span class="font-size-40">You can now [Download the Unity Demo](shader-intro-demo.unitypackage) presented during the lesson</span> -->
 
----
+Note:
 
-## Premise
+Cosa?
 
-The informations contained in these slides are *intentionally simplified* and *sometimes inaccurate* in order to expose the concepts as easy as possible.
+* Tecniche utilizzate in videogiochi con grafica HQ
+* No Stato dell'arte senza ottimizzazione di rendering
+    * A livello di pipeline di rendering!
 
-------------
+Come?
 
-## Summary
-
-* **Question time**
-* Real-time rendering
-* The rendering pipeline
-* Rendering in Unity
-* Further reading
-
-------------
-
-# Question Time
-
----
-
-## What is a shader?
-
-<span class="fragment fade-in-then-out"> 
-A shader is a small <span class="highlight">**program**</span> or set of algorithms that determines how 3D **surface properties** of objects are rendered, and **how light interacts** with the object within a 3D computer program. 
-</span>
-
-<span class="fragment">
-A shader is a **program** that runs on **GPU**.
-</span>
-
----
-
-## Why on GPU?
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/-P28LKWTzrI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-
----
-
-## What kinds of shader exist?
-
-<ul class="fragment" data-fragment-index="1">
-    <li>vertex shader</li>
-    <li>fragment shader</li>
-    <li><span class="fragment highlight-red" data-fragment-index="2">surface shader</span> <span class="fragment" data-fragment-index="2"> *- it's a Unity abstraction* </span> </li>
-    <li>geometry shader</li>
-    <li><span class="fragment highlight-red" data-fragment-index="3">audio shader</span> <span class="fragment" data-fragment-index="3"> *- it's a ShaderToy abstraction* </span></li>
-    <li>tessellation shader</li>
-    <li>compute shader</li>
-</ul>
-
----
-
-## What can shaders do?
-
-<iframe width="640" height="360" frameborder="0" data-src="https://www.shadertoy.com/embed/XsXXDn?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
-
----
-
-## What can shaders do?
-
-<iframe width="640" height="360" frameborder="0" data-src="https://www.shadertoy.com/embed/4dcGW2?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
-
----
-
-## What can shaders do?
-
-<iframe width="640" height="360" frameborder="0" data-src="https://www.shadertoy.com/embed/Ms2SD1?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
-
----
-
-## What can shaders do?
-
-<iframe width="640" height="360" frameborder="0" data-src="https://www.shadertoy.com/embed/Xds3zN?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
-
----
-
-## What can shaders do?
-
-<iframe width="640" height="360" frameborder="0" data-src="https://www.shadertoy.com/embed/XtlSD7?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
-
----
-
-## How to use shaders...
-
-...in a **convenient** way?
+* Nelle aziende più grandi motori custom
+* Da noi Unity le fornisce grazie a dei plugin
 
 ------------
 
 ## Summary
 
-* Question time
-* **Real-time rendering**
-* The rendering pipeline
-* Rendering in Unity
-* Further reading
+* **Forward Shading**
+* Deferred Shading
+* Decal Rendering
+* Tiled/Clustered Shading
+* Clustered Shading
 
 ------------
 
-# Real-time rendering
+# Forward Shading
+
+Note:
+
+Prima di parlare delle tecniche di shading efficiente, facciamo un passo indietro. Il forward shading è la modalità standard di rendering.
 
 ---
 
-## Rendering of a frame
+## Forward Shading
 
 <img src="img/frame-render.gif">
 
+Note:
+
+Ogni frame è renderizzato un oggetto alla volta. I pixel di un oggetto appena renderizzato vanno a sovrapporsi al resto del frame che è stato renderizzato finora.
+
+Una volta che il frame è pronto viene mostrato a schermo.
+
 ---
 
-## Rendering of a frame
+## Forward Shading
 
-<ul>
-    <li class="fragment">The rendering of a frame is entirely made by a sequence of **draw calls**</li>
-    <li class="fragment">A draw call transforms a set of **vertices** (usually a mesh) into a set of colored **pixels** that are **merged** into the frame.</li>
-    <li class="fragment">It is a *complex* operation, made of a **sequence** of *tiny, specific operations*</li>
-    <li class="fragment">This sequence of simple operations is organized into a pipeline: the **Rendering Pipeline**</li>
+We have always used it 
+
+<ul class="fragment">
+    <li>Blind</li>
+    <li>Omen</li>
+    <li>Almost everything else we made</li>
 </ul>
 
-------------
-
-## Summary
-
-* Question time
-* Real-time rendering
-* **The rendering pipeline**
-* Rendering in Unity
-* Further reading
-
-------------
-
-# The Rendering Pipeline
-
 ---
 
-## The Rendering Pipeline
+## Forward Shading
 
-<img src="img/pipeline-full.png">
+It uses the **standard GPU pipeline**.
 
-<ul class="font-size-80">
-    <li class="fragment">It's a sequence of operations or **stages**</li>
-    <li class="fragment">
-        It's a **pipeline** (don't you say?)
-        <ul>
-            <li class="fragment">Each stage transforms **input** data into **output** data</li>
-            <li class="fragment">The output of a stage is the input for the next stage</li>
-            <li class="fragment">The stages work **in parallel** on different objects</li>
-        </ul>
-    </li>
-    <li class="fragment">It's implemented in the hardware of the **GPU**</li>
-    <li class="fragment">Some stages are **programmable** with **shaders**</li>
-    <li class="fragment">Each stage is also **parallel** internally</li>
-<ul>
+<img class="fragment" src="img/pipeline-full.png">
 
----
+<p class="fragment">
+Let's quickly review it
+</p>
 
-### Vertices and Coordinate Systems
+Note:
 
-<img src="img/pipeline-vertices.png">
-
-<span class="fragment" data-fragment-index="1">Vertices are made of **attributes**</span>
-
-<ul class="fragment" data-fragment-index="1">
-    <li>Position</li>
-    <li>Normal</li>
-    <li>Tangent</li>
-    <li>Texture Coordinate (UV)</li>
-    <li>Color</li>
-</ul>
-
-
----
-
-### Vertices and Coordinate Systems
-
-<img src="img/pipeline-vertices.png">
-
-From vertices to pixels... we have a problem!
-
-<ul>
-    <li class="fragment">Vertices are defined in a **3D space**, centered on the pivot of the object</li>
-    <li class="fragment">Pixels are positioned on a **2D space**, centered on a corner of the screen</li>
-    <li class="fragment">Vertex attributes must be **transformed**!</li>
-</ul>
-
-<!-- ### Vertices and Coordinate Systems
-
-<img src="img/pipeline-vertices.png">
-
-<table class="font-size-60">
-    <thead>
-        <tr>
-            <th>Space Name</th>
-            <th>Dim</th>
-            <th>Origin</th>
-            <th>Example</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td class="fragment highlight-red" data-fragment-index="1">Object space</td>
-            <td>3D</td>
-            <td>Object pivot</td>
-            <td>Vertices</td>
-        </tr>
-        <tr>
-            <td class="fragment highlight-red" data-fragment-index="1">World space</td>
-            <td>3D</td>
-            <td>World's origin</td>
-            <td>All the objects of a scene</td>
-        </tr>
-        <tr>
-            <td class="fragment highlight-red" data-fragment-index="1">Camera space</td>
-            <td>3D</td>
-            <td>Camera position</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td class="fragment highlight-red" data-fragment-index="1">Clip space</td>
-            <td>3D</td>
-            <td></td>
-            <td>Camera space projected onto a unit cube</td>
-        </tr>
-        <tr>
-            <td class="fragment highlight-red" data-fragment-index="1">Screen space</td>
-            <td>2D</td>
-            <td>Screen corner</td>
-            <td>Pixels</td>
-        </tr>
-        <tr>
-            <td>Texture space</td>
-            <td>2D</td>
-            <td>Texture corner</td>
-            <td>UV vertex attributes</td>
-        </tr>
-        <tr>
-            <td>Tangent space</td>
-            <td>3D</td>
-            <td>Vertex</td>
-            <td>Normal maps</td>
-        </tr>
-    </tbody>
-</table> -->
-
----
-
-### Vertices and Coordinate Systems
-
-<img src="img/spaces.png">
+Rivediamo velocemente come funziona la pipeline.
 
 ---
 
@@ -260,22 +81,7 @@ From vertices to pixels... we have a problem!
 
 <img src="img/pipeline-vertex-shader.png">
 
-<span class="fragment">It's a **program** that processes input **vertices** and outputs modified **vertices**</span>
-
-<span class="fragment">The vertices of a mesh are processed **in parallel**!</span>
-
----
-
-### Vertex shader
-
-<img src="img/pipeline-vertex-shader.png">
-
-Typical operations on a VS
-
-* <span class="fragment highlight-red">Transform vertex position from **object space** to **clip space**</span>
-* Transform other attributes from **object space** to **world space**
-* UV tiling and offset
-* Move vertices (ocean waves, cloths, wind)
+Transforms the vertices of a mesh from **object space** to **clip space**
 
 ---
 
@@ -289,10 +95,7 @@ Typical operations on a VS
 
 <img src="img/pipeline-vertex-post-processing.png">
 
-Vertices are now in **clip space**.
-
-* **Clipping**: remove vertices outside the clip volume
-* Transform vertices from **clip space** to **screen space**
+**Clips vertices** outside of the clip volume and **transforms** them from **clip space** to **screen space**
 
 ---
 
@@ -306,7 +109,7 @@ Vertices are now in **clip space**.
 
 <img src="img/pipeline-primitive-assembly.png">
 
-* Organize the vertices in **primitives** (usually triangles)
+Organizes vertices in **primitives** (usually triangles)
 
 ---
 
@@ -314,7 +117,7 @@ Vertices are now in **clip space**.
 
 <img src="img/pipeline-rasterization.png">
 
-* Transform **vector graphics** into **raster graphics**
+Transforms **vector graphics** into **raster graphics**: triangles to fragments (pixels).
 
 ---
 
@@ -322,24 +125,13 @@ Vertices are now in **clip space**.
 
 <img src="img/rasterization.png">
 
-* Input: a **primitive** (usually a triangle)
-* Output: many **fragments**
-
----
-
-### Rasterization
-
-<img src="img/interpolation.png">
-
-* Attributes of vertices are **interpolated** into attributes of fragments
-
 ---
 
 ### Fragment Shader
 
 <img src="img/pipeline-fragment-shader.png">
 
-<span class="fragment">It's a **program** that gives a **color** and a **depth** to each fragment</span>
+<span class="fragment">Gives a **color** and a **depth** to each fragment</span>
 
 ---
 
@@ -355,6 +147,8 @@ Typical operations on a FS
 * Reflections, refractions
 * A ton of other techniques
 
+<p class="fragment">It usually takes **most of the rendering time**</p>
+
 ---
 
 ### Fragment Operations
@@ -365,98 +159,504 @@ It's a stage made of some sub-stages
 
 <img class="fragment" src="img/fragment-operations.png">
 
+---
+
+## Forward shading 
+
+It's good for
+
+<ul>
+    <li class="fragment">Simple scenes</li>
+    <li class="fragment">Little geometry</li>
+    <ul class="fragment">
+        <li>
+            Due to **overdraw** it's easy to waste GPU time by shading invisible pixels.
+        </li>
+    </ul>
+    <li class="fragment"><span class="highlight">**Few lights**</span></li>
+    <ul class="fragment">
+        <li>
+            Lighting computations are usually the most expensive on GPU!
+        </li>
+    </ul>
+</ul>
+
+---
+
+### Overdraw
+
+<img src="img/blind-base.png">
+
+---
+
+### Overdraw
+
+<img src="img/blind-base-overdraw.png">
+
+Note:
+
+È possibile ottimizzare limitando l'overdraw?
+
+---
+
+### Overdraw
+
+<ul>
+    <li class="fragment">We can *limit* overdraw, but we will always deal with it.</li>
+    <li class="fragment">All the surfaces covered are still being rendered and **shaded**.</li>
+    <li class="fragment">What if we can **shade** only the visible pixels?</li>
+</ul>
+
+<p class="fragment">Let's see some approaches...</p>
+
+---
+
+### Overdraw
+
+Disabling non-adjacent rooms
+
+<img src="img/blind-base-rooms-disabled.png">
+
+---
+
+### Overdraw
+
+**Occlusion culling**
+
+<img src="img/blind-base-occlusion-culling.png">
+
+---
+
+### Overdraw
+
+**Occlusion culling**
+
+<ul>
+    <li class="fragment">It **trades** GPU time for CPU time</li>
+    <li class="fragment">It's great in some cases</li>
+    <ul class="fragment">
+        <li>Closed spaces</li>
+        <li>Rooms</li>
+        <li>Scenes with many big objects or walls</li>
+    </ul>
+    <li class="fragment">The convenience also depends on the hardware</li>
+    <ul class="fragment">
+        <li class="fragment">We had to disable it on PS4</li>
+    </ul>
+</ul>
+
+---
+
+### Overdraw
+
+**Early fragment test**
+
+<img class="fragment" src="img/early-fragment-test.png">
+
+<ul>
+    <li class="fragment">It gets enabled automatically as an optimisation</li>
+    <li class="fragment">The benefit depends on the **rendering order**!</li>
+</ul>
+
+---
+
+
+### Overdraw
+
+**Depth prepass**
+
+<ul>
+    <li class="fragment">It pre-renders **the whole scene** using replacement shaders</li>
+    <ul>
+        <li class="fragment">Vertex shader is super simple</li>
+        <li class="fragment">Fragment shader is empty</li>
+        <li class="fragment">It writes **depth** but **no color**</li>
+    </ul>
+    <li class="fragment">During render, the depth of the whole scene is already present</li>
+    <li class="fragment">Combined with **Early fragment test** it completely removes overdraw (on opaque objects)</li>
+</ul>
+
+---
+
+### Overdraw
+
+**Depth prepass**
+
+<ul>
+    <li class="fragment">It's good when:</li>
+    <ul>
+        <li class="fragment">You have much overdraw</li>
+        <li class="fragment">Your fragment shaders are heavy</li>
+    </ul>
+    <li class="fragment">It's bad when:</li>
+    <ul>
+        <li class="fragment">You have a large number of small objects (it doubles draw calls)</li>
+        <li class="fragment">Your geometry is too dense of vertices (it doubles vertex shader time)</li>
+    </ul>
+</ul>
+
+---
+
+### Many lights
+
+<ul>
+    <li class="fragment">In a fragment shader, usually the **lighting computations** are the most expensive</li>
+    <li class="fragment">The number of active lights drastically affects performances</li>
+</ul>
+
+---
+
+<img src="img/forward-lights.gif">
+
+---
+
+### Many lights
+
+**Multi pass shader**
+
+<ul>
+    <li class="fragment">In Unity, each light is computed in a different **pass**</li>
+    <li class="fragment">Bad for geometry. Especially on skinned meshes.</li>
+    <li class="fragment">Let's see another approach...</li>
+</ul>
+
+---
+
+### Many lights
+
+**Single pass shader**
+
+<ul>
+    <li class="fragment">A custom shader manages all the lights in a single pass (Blind!)</li>
+    <li class="fragment">Much harder to mantain</li>
+    <li class="fragment">Better for geometry</li>
+</ul>
+
+---
+
+### Many lights
+
+**Single pass shader**
+
+```
+// ...
+
+// Calculate the lighting for 4 lights. Params are ordered by feature. Mandatory params are at bottom (to avoid trailing comma).
+inline void Calc4Lights ()
+{
+
+    // ...
+
+}
+
+// Vertex shader
+Varys ComputeBlindVertex(){
+
+  // ...
+
+}
+
+// Fragment shader
+float4 ComputeBlindFragment(){
+
+  // ...
+
+  // If at least one light is on, make a lot of computations
+  #ifndef TBS_LIGHTS_OFF
+
+  // ...
+
+  // Compute lights 1-4
+  #if defined ( TBS_LIGHTS1_ON ) ||  defined ( TBS_LIGHTS2_ON ) ||  defined ( TBS_LIGHTS3_ON ) ||  defined ( TBS_LIGHTS4_ON )
+    Calc4Lights ();
+  #endif
+
+  // Compute lights 5-8
+  #if defined ( TBS_LIGHTS2_ON ) ||  defined ( TBS_LIGHTS3_ON ) ||  defined ( TBS_LIGHTS4_ON )
+    Calc4Lights ();
+  #endif
+
+  // Compute lights 9-12
+  #if defined ( TBS_LIGHTS3_ON ) ||  defined ( TBS_LIGHTS4_ON )
+    Calc4Lights ();
+  #endif
+
+  // Copute lights 13-16
+  #if defined ( TBS_LIGHTS4_ON )
+    Calc4Lights ();
+  #endif
+
+  // ...
+
+  #endif
+
+  // ...
+
+}
+```
+
+---
+
+### Many lights
+
+**Light culling**
+
+<img src="img/light-culling.gif">
+
+---
+
+### Many lights
+
+<ul>
+    <li class="fragment">All the previous approaches use a **global list** of lights</li>
+    <li class="fragment">Lights far away from an object get always computed</li>
+    <li class="fragment">We could make **per-object lists**</li>
+    <ul>
+        <li class="fragment">It greatly reduces GPU time</li>
+        <li class="fragment">It badly increases CPU time: we have to update the lists!</li>
+    </ul>
+</ul>
+
+---
+
+## Forward shading
+
+We can push optimisation a lot with **forward shading**, but we will always have to deal with a **small number of lights** and an overhead due to **overdraw** or other techniques implemented to reduce the latter.  
+
 ------------
 
 ## Summary
 
-* Question time
-* Real-time rendering
-* The rendering pipeline
-* **Rendering in Unity**
-* Further reading
+* Forward Shading
+* **Deferred Shading**
+* Decal Rendering
+* Tiled/Clustered Shading
 
 ------------
 
-# Rendering in Unity
+# Deferred shading
 
 ---
 
-## Rendering in Unity
+## Deferred shading
 
-The Rendering Pipeline in Unity is configured by Components and Assets.
-
-<img src="img/pipeline-full.png">
+<p class="fragment">
+The idea is to perform all *visibility testing* and *surface property* evaluation **before** performing any *material lighting* computation. We have:
+</p>
 
 <ul>
-    <li class="fragment">**MeshRenderer**</li>
-    <ul>
-        <li class="fragment">Invokes a **draw call** at each frame</li>
-        <li class="fragment">Provides the **vertices** to the rendering pipeline</li>
-        <li class="fragment">Uses other Components to configure the rest of the pipeline</li>
-    </ul>
+    <li class="fragment">A **geometry pass** that generates and stores all the material parameters into some buffers (the G-buffers)</li>
+    <li class="fragment">A **lighting pass** that computes the lights using the G-buffers as textures. 
 </ul>
 
 ---
 
-<ul>
-    <li>**Transform** of the object</li>
-    <ul>
-        <li class="fragment">Describes the object's position in **world space**</li>
-        <li class="fragment">Defines the **modeling transformation**</li>
-    </ul>
-</ul>
+### The geometry pass
 
-<img src="img/spaces.png">
+This pass is made using a technique called **Multiple Render Targets** (MRT).
+
+<p class="fragment">MRT allows a fragment shader to target more than one texture</p>
+
+<img class="fragment" src="img/MRT.png">
 
 ---
 
-<ul>
-    <li class>**Camera**</li>
-    <ul>
-        <li class="fragment">Defines the **projection transformation**</li>
-    </ul>
-</ul>
+#### G-Buffer 0
 
-<img src="img/spaces.png">
+<img src="img/ss-gbuffer0.jpg">
 
 ---
 
-<ul>
-    <li>**Transform** of the camera</li>
-    <ul>
-        <li class="fragment">Describes the **camera space**</li>
-        <li class="fragment">Defines the **camera transformation**</li>
-    </ul>
-</ul>
+#### G-Buffer 1
 
-<img src="img/spaces.png">
+<img src="img/ss-gbuffer1.jpg">
 
 ---
 
+#### G-Buffer 2
+
+<img src="img/ss-gbuffer2.jpg">
+
+---
+
+#### G-Buffer 3
+
+<img src="img/ss-gbuffer3.jpg">
+
+---
+
+### The geometry pass
+
 <ul>
-    <li>A **Material** provides:</li>
-    <ul>
-        <li class="fragment">A **vertex shader**</li>
-        <li class="fragment">A **fragment shader**</li>
-        <li class="fragment">Some **shader prameters**</li>
-        <li class="fragment">A **rendering queue**</li>
-        <li class="fragment">Configurations for the **fragment operations**</li>
-    </ul>
+    <li>The G-Buffers layout is configurable</li>
 </ul>
 
-<img src="img/pipeline-full.png">
+<img src="img/gbuffers-layout.jpg">
 
-<img class="fragment" src="img/fragment-operations.png">
+---
+
+### The geometry pass
+
+**Pros**
+
+<ul>
+    <li class="fragment">After this pass we don't need the geometry anymore</li>
+    <li class="fragment">We have **overdraw**, but the shader is much faster</li>
+    <li class="fragment">We have **deferred** the expensive lighting computations</li>
+</ul>
+
+---
+
+### The geometry pass
+
+**Cons**
+
+<ul>
+    <li class="fragment">High G-buffer video memory usage</li>
+    <li class="fragment">High memory bandwith costs</li>
+    <li class="fragment">No support for transparent materials</li>
+    <li class="fragment">No MSAA</li>
+</ul>
+
+---
+
+### The lighting pass
+
+We will see this later...
 
 ------------
 
 ## Summary
 
-* Question time
-* Real-time rendering
-* The rendering pipeline
-* Rendering in Unity
-* **Further reading**
+* Forward Shading
+* Deferred Shading
+* **Decal Rendering**
+* Tiled/Clustered Shading
+
+------------
+
+# Decal Rendering
+
+---
+
+## Decal Rendering
+
+A **decal** is a texture applied on top of a surface.
+
+<ul class="fragment">
+    <li>Tire marks</li>
+    <li>Bullet holes</li>
+    <li>Tags</li>
+    <li>Variations (e.g. dirty walls)</li>
+</ul>
+
+---
+
+## Decal Rendering
+
+A **decal** can:
+
+<ul class="fragment">
+    <li>Modify the underlying color</li>
+    <li>Replace the normal mapping</li>
+    <li>Define a completely different material</li>
+</ul>
+
+<p class="fragment">
+A **decal** must be mapped to the surface. There are several approaches...
+</p>
+
+---
+
+## Decal Rendering
+
+**Mapping decals as textures**
+
+<ul>
+    <li class="fragment">We have a limited amount of UV sets</li>
+    <li class="fragment">Many small decals means saving UVs at every vertex while each decal affects few triangles</li>
+    <li class="fragment">The fragment shader: </li>
+    <ul>
+        <li class="fragment">Samples all the decals</li>
+        <li class="fragment">Blends them one atop the next</li>
+        <li class="fragment">Gets much complicated</li>
+        <li class="fragment">Must be compiled many times (number of decals may vary)</li>
+    </ul>
+</ul>
+
+---
+
+## Decal Rendering
+
+**Duplicating geometry**
+
+<ul>
+    <li class="fragment">Render the mesh again for each decal</li>
+    <li class="fragment">It can drastically increase the rendered geometry</li>
+    <li class="fragment">We can create smaller sub-meshes</li>
+    <li class="fragment">It's what Unity does with forward shading</li>
+</ul>
+
+---
+
+## Decal Rendering
+
+**Baking decals onto textures**
+
+<ul>
+    <li class="fragment">Bad texture and memory management</li>
+</ul>
+
+---
+
+## Decal Rendering
+
+**Volume projectors**
+
+<ul>
+    <li class="fragment">The decal is **orthographically projected** through a box</li>
+    <ul>
+        <li class="fragment">The faces of the box are rasterized</li>
+        <li class="fragment">Surface's depth and screen position converted into a location in the volume</li>
+        <li class="fragment">This gives textures coordinates</li>
+    </ul>
+</ul>
+
+---
+
+## Decal Rendering
+
+**Volume projectors**
+
+<img src="img/projected-decals.gif">
+
+---
+
+## Decal Rendering
+
+**Volume projectors**
+
+These decals are perfect for **Deferred shading**
+
+<ul>
+    <li class="fragment">They can directly modify the appropriate G-Buffer</li>
+    <li class="fragment">No need to illuminate each decal</li>
+    <li class="fragment">No overdraw</li>
+    <li class="fragment">Decals not needed during shading</li>
+</ul>
+
+------------
+
+## Summary
+
+* Forward Shading
+* Deferred Shading
+* Decal Rendering
+* **Tiled/Clustered Shading**
+
+------------
+
+# Tiled/Clustered Shading
 
 ------------
 
@@ -472,10 +672,10 @@ The Rendering Pipeline in Unity is configured by Components and Assets.
             <li>Mathematics for 3D Game Programming and Computer Graphics - Third Edition - Eric Lengyel - Chapter 1</li>
             <li>[My thesis](https://www.dropbox.com/s/egvywh1eayqken3/thesis.pdf?dl=0) - Chapter 2 </li>
         </ul>
-    <li>Fragment shaders</li>
+    </li>
+    <li>Efficient Shading</li>
         <ul>
-            <li>[The Book of Shaders](https://thebookofshaders.com/) - an online interactive book</li>
-            <li>[ShaderToy](https://www.shadertoy.com) - Build and share your best shaders with the world and get inspired</li>
+            <li>Real-Time Rendering - Fourth Edition - T. Akenine-Moller, E. Haines, N. Hoffman, A. Pesce, M. Iwanicki, S. Hillaire - Chapter 20</li>
         </ul>
-    <li>[Unity Demo](shader-intro-demo.unitypackage) presented during the lesson</li>
+    </li>
 </ul>
