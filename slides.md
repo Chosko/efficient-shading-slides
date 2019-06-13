@@ -399,7 +399,7 @@ float4 ComputeBlindFragment(){
 
 ### Many lights
 
-**Light culling**
+**Frustum culling**
 
 <img src="img/light-culling.gif">
 
@@ -485,6 +485,24 @@ This pass is made using a technique called **Multiple Render Targets** (MRT).
 
 ---
 
+#### Depth Buffer
+
+<img src="img/ss-depth.jpg">
+
+---
+
+#### Stencil Buffer
+
+<img src="img/ss-stencil.jpg">
+
+---
+
+#### Velocity Buffer
+
+<img src="img/ss-vel.jpg">
+
+---
+
 ### The geometry pass
 
 <ul>
@@ -522,7 +540,39 @@ This pass is made using a technique called **Multiple Render Targets** (MRT).
 
 ### The lighting pass
 
-We will see this later...
+<ul>
+    <li class="fragment">It renders a full-screen quad for each light</li>
+    <li class="fragment">The fragment shader:</li>
+    <ul>
+        <li class="fragment">Uses the G-Buffers as textures mapped on the quad</li>
+        <li class="fragment">Computes the lighting of the whole scene all at once</li>
+    </ul>
+    <li class="fragment">The results of each light are blended together</li>
+</ul>
+
+---
+
+### The lighting pass
+
+**Pros**
+
+<ul>
+    <li class="fragment">Only **one draw call** per light</li>
+    <li class="fragment">Almost no geometry (a quad per light)</li>
+    <li class="fragment">We completely **removed overdraw**</li>
+</ul>
+
+---
+
+### The lighting pass
+
+**Cons**
+
+<ul>
+    <li class="fragment">Only few lights</li>
+</ul>
+
+<p class="fragment">We will come back to this later...</p>
 
 ------------
 
@@ -639,11 +689,18 @@ A **decal** must be mapped to the surface. There are several approaches...
 These decals are perfect for **Deferred shading**
 
 <ul>
-    <li class="fragment">They can directly modify the appropriate G-Buffer</li>
+    <li class="fragment">They can directly modify the G-Buffers</li>
+    <li class="fragment">Or they can be stored on a D-Buffer</li>
     <li class="fragment">No need to illuminate each decal</li>
     <li class="fragment">No overdraw</li>
     <li class="fragment">Decals not needed during shading</li>
 </ul>
+
+---
+
+## Decal Rendering
+
+<img src="img/ss-dbuffer0.jpg">
 
 ------------
 
@@ -656,13 +713,98 @@ These decals are perfect for **Deferred shading**
 
 ------------
 
-# Tiled/Clustered Shading
+## Tiled/Clustered Shading
+
+---
+
+## Tiled Shading
+
+The screen is divided into **small tiles**
+
+<ul>
+    <li class="fragment">Each tile keeps a **list of lights**</li>
+    <li class="fragment">The lighting pass evaluates each tile separately</li>
+    <ul>
+        <li class="fragment">A light is evaluated only on few tiles</li>
+        <li class="fragment">It drastically increases the number of lights allowed</li>
+    </ul>
+</ul>
+
+---
+
+## Tiled Shading
+
+It's made with **frustum culling** made on many small frustums.
+
+<img src="img/tiled-shading.jpg">
+
+---
+
+## Tiled Shading
+
+It's awesome, but we can do better.
+
+<ul>
+    <li class="fragment">Some lights fall inside the frustum but don't hit any geometry</li>
+    <li class="fragment">What if we divide also the depth?</li>
+</ul>
+
+---
+
+## Clustered Shading
+
+The view frustum is divided into **small volumes (clusters)**
+
+<ul>
+    <li class="fragment">The **tiling** divides the frustum horizontally and vertically</li>
+    <li class="fragment">The **clustering** divides also the tiles along their depth</li>
+    <li class="fragment">Each **cluster** keeps its **list of lights**</li>
+    <li class="fragment">It culls out lights that don't hit any geometry in a given tile</li>
+</ul>
+
+---
+
+## Clustered Shading
+
+<img src="img/clustered-shading.jpg">
+
+---
+
+## Clustered Shading
+
+<img src="img/ss-tilepass0.jpg">
+
+---
+
+## Clustered Shading
+
+<img src="img/ss-tilepass1.jpg">
+
+---
+
+## Clustered Shading
+
+<img src="img/ss-tilepass2.jpg">
+
+---
+
+## Clustered Shading
+
+<img src="img/ss-tilepass3.jpg">
+
+---
+
+## Some useful info
+
+<img src="img/recap.jpg">
 
 ------------
 
-# Further reading
+## Efficient shading in Unity
 
----
+[Scriptable Rendering Pipeline](https://github.com/Unity-Technologies/ScriptableRenderPipeline)
+
+------------
 
 ## Further reading
 
@@ -670,7 +812,8 @@ These decals are perfect for **Deferred shading**
     <li>Rendering Pipeline</li>
         <ul>
             <li>Mathematics for 3D Game Programming and Computer Graphics - Third Edition - Eric Lengyel - Chapter 1</li>
-            <li>[My thesis](https://www.dropbox.com/s/egvywh1eayqken3/thesis.pdf?dl=0) - Chapter 2 </li>
+            <li>[Shader Intro](https://shader-intro-slides.chosko.com)</li>
+            <li>[My thesis](https://www.dropbox.com/s/egvywh1eayqken3/thesi s.pdf?dl=0) - Chapter 2 </li>
         </ul>
     </li>
     <li>Efficient Shading</li>
