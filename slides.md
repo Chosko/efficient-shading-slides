@@ -2,7 +2,9 @@
 
 by [Chosko](https://chosko.com)
 
-<!-- <span class="font-size-40">You can now [Download the Unity Demo](shader-intro-demo.unitypackage) presented during the lesson</span> -->
+<span class="font-size-40">You can now watch the [video of the lesson]()</span>
+
+<span class="font-size-40">Previous chapter: [Shader Intro](https://shader-intro-slides.chosko.com)</span>
 
 Note:
 
@@ -812,13 +814,14 @@ The view frustum is divided into **small volumes (clusters)**
     <li>Rendering Pipeline</li>
         <ul>
             <li>Mathematics for 3D Game Programming and Computer Graphics - Third Edition - Eric Lengyel - Chapter 1</li>
-            <li>[Shader Intro](https://shader-intro-slides.chosko.com)</li>
             <li>[My thesis](https://www.dropbox.com/s/egvywh1eayqken3/thesi s.pdf?dl=0) - Chapter 2 </li>
-        </ul>
+        </ul>s
     </li>
     <li>Efficient Shading</li>
         <ul>
             <li>Real-Time Rendering - Fourth Edition - T. Akenine-Moller, E. Haines, N. Hoffman, A. Pesce, M. Iwanicki, S. Hillaire - Chapter 20</li>
         </ul>
     </li>
+    <li>Previous chapter: [Shader Intro](https://shader-intro-slides.chosko.com)</li>
+    <li>Watch the [video of the lesson]()</li>
 </ul>
