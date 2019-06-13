@@ -815,7 +815,7 @@ The view frustum is divided into **small volumes (clusters)**
         <ul>
             <li>Mathematics for 3D Game Programming and Computer Graphics - Third Edition - Eric Lengyel - Chapter 1</li>
             <li>[My thesis](https://www.dropbox.com/s/egvywh1eayqken3/thesi s.pdf?dl=0) - Chapter 2 </li>
-        </ul>s
+        </ul>
     </li>
     <li>Efficient Shading</li>
         <ul>
