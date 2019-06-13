@@ -736,7 +736,7 @@ The screen is divided into **small tiles**
 
 ## Tiled Shading
 
-It's made with **frustum culling** made on many small frustums.
+It's made applying **frustum culling** on many small frustums.
 
 <img src="img/tiled-shading.jpg">
 
