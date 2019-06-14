@@ -2,7 +2,7 @@
 
 by [Chosko](https://chosko.com)
 
-<span class="font-size-40">You can now watch the [video of the lesson]()</span>
+<span class="font-size-40">You can now watch the [video of the lesson](https://youtu.be/ORJxQbv3YT8)</span>
 
 <span class="font-size-40">Previous chapter: [Shader Intro](https://shader-intro-slides.chosko.com)</span>
 
@@ -823,5 +823,5 @@ The view frustum is divided into **small volumes (clusters)**
         </ul>
     </li>
     <li>Previous chapter: [Shader Intro](https://shader-intro-slides.chosko.com)</li>
-    <li>Watch the [video of the lesson]()</li>
+    <li>Watch the [video of the lesson](https://youtu.be/ORJxQbv3YT8)</li>
 </ul>
